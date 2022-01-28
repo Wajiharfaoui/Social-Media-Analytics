@@ -6,13 +6,12 @@ if(!require("dplyr")) install.packages("dplyr"); library("dplyr")
 
 number_of_tweets <- 1000
 AllTweets <- list()
-MediaTweets <- list()
 meta <- list()
 for(i in 1:(number_of_tweets/100)){
   print(i)
   if(i ==1){
     url_complete <- modify_url(
-      url = "https://api.twitter.com",
+      url = https://api.twitter.com,
       path = c("2", "users","8771022","tweets"),
       query= list(
         exclude="replies,retweets",
@@ -26,13 +25,12 @@ for(i in 1:(number_of_tweets/100)){
       )
     )
     resTweets <- GET(url = url_complete,add_headers(authorization = paste0("Bearer ",bearer_token)))
-    AllTweets[[i]] <- fromJSON(httr::content(resTweets, "text"),flatten=T)$data
-    MediaTweets[[i]] <- fromJSON(httr::content(resTweets, "text"),flatten=T)$includes
+    AllTweets[[i]] <- fromJSON(httr::content(resTweets, "text"),flatten=T)
     meta[[i]] <- fromJSON(httr::content(resTweets, "text"))$meta
   } else {
     if(sum(grepl("next_token",names(meta[[i-1]])))){
       url_complete <- modify_url(
-        url = "https://api.twitter.com",
+        url = https://api.twitter.com,
         path = c("2", "users","8771022","tweets"),
         query= list(
           exclude="replies,retweets",
@@ -47,13 +45,15 @@ for(i in 1:(number_of_tweets/100)){
         )
       )
       resTweets <- GET(url = url_complete,add_headers(authorization = paste0("Bearer ",bearer_token)))
-      AllTweets[[i]] <- fromJSON(httr::content(resTweets, "text"),flatten=T)$data
-      MediaTweets[[i]] <- fromJSON(httr::content(resTweets, "text"),flatten=T)$includes
+      AllTweets[[i]] <- fromJSON(httr::content(resTweets, "text"),flatten=T)
       meta[[i]] <- fromJSON(httr::content(resTweets, "text"))$meta
+    } else {
+      break
     }
   }
 }
 # Now we will bind all the data elements together using the rbindlist function from data.table
 library(data.table)
-alltweets <- rbindlist(AllTweets,use.names=T,fill=TRUE)
-media <- rbindlist(MediaTweets,use.names=T)
+alltweets <- rbindlist(lapply(AllTweets,function(x) x$data),use.names=T,fill=TRUE)
+users <- rbindlist(lapply(AllTweets,function(x) x$includes$users),use.names=T,fill=TRUE)
+media <- rbindlist(lapply(AllTweets,function(x) x$includes$media),use.names=T,fill=TRUE)
