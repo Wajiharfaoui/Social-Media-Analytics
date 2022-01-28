@@ -1,4 +1,5 @@
-bearer_token <- "AAAAAAAAAAAAAAAAAAAAAF1TYAEAAAAAWHKRnlD7mRxBys7fxJporI0QRjA%3DXORqSr5R5r3yO8z56x77AMQ3Y2qyticQWbq5boxBL2jZrQeSNx"
+setwd("C:/Users/promaninfante/OneDrive - IESEG/SM Analytics")
+source("tokens.R")
 if(!require("httr")) install.packages("httr"); library("httr")
 if(!require("jsonlite")) install.packages("jsonlite"); library("jsonlite")
 if(!require("data.table")) install.packages("data.table"); library("data.table")
@@ -11,7 +12,7 @@ for(i in 1:(number_of_tweets/100)){
   print(i)
   if(i ==1){
     url_complete <- modify_url(
-      url = https://api.twitter.com,
+      url = "https://api.twitter.com",
       path = c("2", "users","8771022","tweets"),
       query= list(
         exclude="replies,retweets",
@@ -24,13 +25,13 @@ for(i in 1:(number_of_tweets/100)){
         max_results=100
       )
     )
-    resTweets <- GET(url = url_complete,add_headers(authorization = paste0("Bearer ",bearer_token)))
+    resTweets <- GET(url = url_complete,add_headers(authorization = paste0("Bearer ",tw_bearer_token)))
     AllTweets[[i]] <- fromJSON(httr::content(resTweets, "text"),flatten=T)
     meta[[i]] <- fromJSON(httr::content(resTweets, "text"))$meta
   } else {
     if(sum(grepl("next_token",names(meta[[i-1]])))){
       url_complete <- modify_url(
-        url = https://api.twitter.com,
+        url = "https://api.twitter.com",
         path = c("2", "users","8771022","tweets"),
         query= list(
           exclude="replies,retweets",
@@ -44,7 +45,7 @@ for(i in 1:(number_of_tweets/100)){
           pagination_token = meta[[i-1]]$next_token
         )
       )
-      resTweets <- GET(url = url_complete,add_headers(authorization = paste0("Bearer ",bearer_token)))
+      resTweets <- GET(url = url_complete,add_headers(authorization = paste0("Bearer ",tw_bearer_token)))
       AllTweets[[i]] <- fromJSON(httr::content(resTweets, "text"),flatten=T)
       meta[[i]] <- fromJSON(httr::content(resTweets, "text"))$meta
     } else {
@@ -57,3 +58,7 @@ library(data.table)
 alltweets <- rbindlist(lapply(AllTweets,function(x) x$data),use.names=T,fill=TRUE)
 users <- rbindlist(lapply(AllTweets,function(x) x$includes$users),use.names=T,fill=TRUE)
 media <- rbindlist(lapply(AllTweets,function(x) x$includes$media),use.names=T,fill=TRUE)
+
+length(alltweets$attachments.media_keys[[7]]) 
+test <- c("26","232")
+length(test)
