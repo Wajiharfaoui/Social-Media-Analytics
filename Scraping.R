@@ -1,4 +1,3 @@
-setwd("C:/Users/promaninfante/OneDrive - IESEG/SM Analytics")
 source("tokens.R")
 if(!require("httr")) install.packages("httr"); library("httr")
 if(!require("jsonlite")) install.packages("jsonlite"); library("jsonlite")
@@ -60,7 +59,8 @@ library(data.table)
 alltweets <- rbindlist(lapply(AllTweets,function(x) x$data),use.names=T,fill=TRUE)
 users <- rbindlist(lapply(AllTweets,function(x) x$includes$users),use.names=T,fill=TRUE)
 media <- rbindlist(lapply(AllTweets,function(x) x$includes$media),use.names=T,fill=TRUE)
-
+tweets <- apply(alltweets,2,as.character)
+write.csv(tweets,"./data/tweets.csv", row.names = FALSE)
 # Creating engagement variable based on weighted average of likes, replies, quotes and retweets
 alltweets$engagement <- alltweets$public_metrics.quote_count*0.4 + alltweets$public_metrics.retweet_count *0.3
 +  alltweets$public_metrics.reply_count*0.2 + alltweets$public_metrics.like_count*0.1
