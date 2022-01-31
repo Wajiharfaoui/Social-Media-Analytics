@@ -186,4 +186,9 @@ alltweets <- alltweets %>% mutate(
 
 # Removing unuseful columns 
 
-alltweets <- alltweets[, -c("reply_settings","referenced_tweets","conversation_id","in_reply_to_user_id","lang","author_id", "entities.mentions", "entities.hashtags", "entities.annotations", "entities.urls","public_metrics.retweet_count", "public_metrics.reply_count", "public_metrics.quote_count", "public_metrics.like_count", "attachments.media_keys", "attachments.poll_ids")]
+alltweets <- alltweets[, -c("reply_settings","referenced_tweets","conversation_id","in_reply_to_user_id","lang","author_id", "entities.mentions", 
+                            "entities.hashtags", "entities.annotations", "entities.urls","public_metrics.retweet_count", "public_metrics.reply_count", 
+                            "public_metrics.quote_count", "public_metrics.like_count", "attachments.media_keys", "attachments.poll_ids")]
+
+                               
+                                
