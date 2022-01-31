@@ -18,25 +18,20 @@ library(lubridate)
 library(data.table)
 library(dplyr)
 library(ggplot2)
-
-library(shinydashboard)
-
-#this are my changes
-library(ggplot2)
 library(plotly)
 library(shinydashboard)
+library(rtweet)
 
 ################ PREPARATION ------------------------------
-
-setwd('C:/Users/mserrano/OneDrive - IESEG/MSc/2ND SEMESTER/SOCIAL MEDIA ANALYTICS/Group Project/App')
-
+setwd("C:/Users/warfaoui/OneDrive - IESEG/Desktop/Social Media Analytics/Group Project/Social-Media-Analytics/Social-Media-Analytics-main/App")
 dat<-read.csv("final_all_cols.csv")
-dat<-read.csv("final.csv")
+
 
 ################ UI ------------------------------
 
-ui <- fluidPage(theme = shinytheme("simplex"),
-                tags$img(src="IESEG-Logo-2012-rgb.jpg", align="right", height = 60, width=200),
+########################## Wajih Part ####################
+ui <- fluidPage(theme = shinytheme("united"),
+                tags$img(src="dd_logo.png", align="right", height = 80, width=200),
 
   h2(strong("Dunkin Donuts Sentiment Analysis")),
   navlistPanel( widths = c(2,10),
@@ -45,39 +40,21 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                mainPanel(
                  tabsetPanel(type="tabs",
                              tabPanel('Descriptive',
+                                      fluidRow(align="center", h4(strong("Tweets' Timeline")),
+                                        dateRangeInput("date_range", strong("Select the range of dates"),start=min(dat$created_at),end=max(dat$created_at),min=min(dat$created_at),max=max(dat$created_at),format = "yyyy-mm-dd")
+                                      ),
+                                      
                                       fluidRow(align="center", 
-                                        splitLayout(cellWidths = c("45%","55%"), h4(strong("Gender Distrubution")),h4(strong("Registered by Date"))),
-                                        splitLayout(cellWidths = c("45%","55%"), plotlyOutput("plot1"),plotlyOutput("plot2")),
+                                        plotOutput("plot1", click = "plot_click"),
+                                        verbatimTextOutput("info")
                                       ),
-                                      fluidRow(align="center",
-                                               column(4,
-                                                      h4("Total Users"),
-                                                      h3(strong(textOutput("totUsers")))
-                                                      ),
-                                               column(4,
-                                                      h4("Daily Users"),
-                                                      h3(strong(textOutput("UsersDailyGen")))
-                                               ),
-                                               column(4,
-                                                      h4("Daily Users Poker"),
-                                                      h3(strong(textOutput("UsersDailyGenP")))
-                                               ),
-                                               
-                                        
-                                      ),
-                                      fluidRow(h5("For the following plots you can select the date range to view:"),
-                                               align="center",
-                                               column(6,dateInput("date_start", strong("Start Date"),min(dat$created_at),min=min(dat$created_at),max=max(dat$created_at))),
-                                               column(6,dateInput("date_end", strong("End Date"),"2005-03-31",min=min(dat$created_at),max=max(dat$created_at))),
-                                               
-                                      ),
-                                      fluidRow(align="center", 
-                                               splitLayout(cellWidths = c("50%","50%"), h4(strong("First Activity by Date")),h4(strong("First Activity and First Pay"))),
-                                               splitLayout(cellWidths = c("50%","50%"), plotlyOutput("plot3"),plotlyOutput("plot4")),
-                                      ),
-                                      fluidRow(align="center",h4(strong("Interval First Pay and Registration Date")),plotlyOutput("plot5")
-                                               )
-                                      ),
+                                      
+                                      fluidRow(align="center",h4(strong("Top hashtags")),
+                                         plotOutput("plot2", click = "plot_click2"),
+                                         verbatimTextOutput("info2")
+                                      )),
+########################## Wajih Part ends here #################### 
+
                              tabPanel("Wordcloud",
                                       fluidRow(align="center",
                                                h4(strong("Location of Users")),
@@ -96,7 +73,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                )
                
       
-    ),
+    )),
     tabPanel(h4(strong("Engagement")),
              
              mainPanel(
@@ -178,7 +155,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
              
     )
     
-)
+
   
   
 ################ SERVER ------------------------------
@@ -186,14 +163,47 @@ ui <- fluidPage(theme = shinytheme("simplex"),
 
 server <- function(input, output){
   
-  # ############### first page users 
-  # 
-  # #plots
-  # output$plot1 <- renderPlotly({
-  #   dtmart %>% count(Gender) %>%
-  #     plot_ly(labels = ~Gender,values = ~n, type = "pie", textinfo = "label+percent", 
-  #             showlegend = F) %>% layout(autosize=F,width = 300, height =300) 
-  #   })
+# ############### first page users 
+# 
+# #plots
+  
+########################## Wajih Part ####################  
+output$plot1 <- renderPlot({
+  dat[dat$created_at>= input$date_range[1]& dat$created_at<= input$date_range[2],] %>% ts_plot("months") +
+    labs(x = NULL, y = NULL,
+         title = "Frequency of Dunckin Donuts official account tweets") + 
+    theme_minimal()
+})
+
+output$info <- renderText({
+  y_str <- function(e) {
+    if(is.null(e)) return("NULL\n")
+    paste0("Number of tweets=", round(e$y, 0))
+  }
+  paste0(y_str(input$plot_click))
+})
+
+output$plot2 <- renderPlot({
+  dat %>% 
+    unnest_tokens(hashtag, text, "tweets", to_lower = FALSE) %>%
+    filter(str_detect(hashtag, "^#")) %>%
+    count(hashtag, sort = TRUE) %>%
+    top_n(10)%>% mutate(name = fct_reorder(hashtag, n)) %>% 
+    ggplot( aes(x=name, y=n)) + geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) + 
+    coord_flip() + xlab("") + theme_bw()
+})
+
+output$info2 <- renderText({
+  y_str <- function(e) {
+    if(is.null(e)) return("NULL\n")
+    paste0("Number of tweets=", round(e$y, 0))
+  }
+  paste0(y_str(input$plot_click2))
+})
+
+
+
+########################## Wajih Part ends here ####################
   # 
   # output$plot2 <- renderPlotly({
   #   dtmart<-data.table(dtmart)
