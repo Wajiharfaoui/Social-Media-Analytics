@@ -18,9 +18,13 @@ library(lubridate)
 library(data.table)
 library(dplyr)
 library(ggplot2)
-library(plotly)
+
 library(shinydashboard)
 
+#this are my changes
+library(ggplot2)
+library(plotly)
+library(shinydashboard)
 
 ################ PREPARATION ------------------------------
 
