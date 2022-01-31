@@ -31,7 +31,7 @@ library(shinydashboard)
 setwd('C:/Users/mserrano/OneDrive - IESEG/MSc/2ND SEMESTER/SOCIAL MEDIA ANALYTICS/Group Project/App')
 
 dat<-read.csv("final_all_cols.csv")
-
+dat<-read.csv("final.csv")
 
 ################ UI ------------------------------
 
