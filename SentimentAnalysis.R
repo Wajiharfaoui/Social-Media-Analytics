@@ -147,7 +147,7 @@ SentimentTweets$BingSentiment <- sign(SentimentTweets$BingSentiment)
 SentimentTweets$AfinSentiment <- sign(SentimentTweets$AfinSentiment)
 SentimentTweets$NrcSentiment <- sign(SentimentTweets$NrcSentiment)
 
-# Calculate final score (Dictionary based that we are going to consider it as manual annotation)
+# Calculate final score 
 SentimentTweets$FinalSentiment <- sign(rowMeans(SentimentTweets[,3:8], na.rm=TRUE))
 
 
@@ -156,68 +156,5 @@ SentimentData <- SentimentTweets %>%
   mutate(text=gsub("<.*?>", "",text))
 
 SentimentTweets <- apply(SentimentTweets,2,as.character)
-write(SentimentTweets,"./data/Sentiment_1.csv")
-# Create a term frequency table for the training set
-corpus = VCorpus(VectorSource(SentimentData$text))
-corpus = tm_map(corpus, removeWords, stopwords("english")) 
-corpus = tm_map(corpus, stemDocument) 
-corpus = tm_map(corpus, stripWhitespace) 
-
-dtm = DocumentTermMatrix(corpus) 
-dtm = removeSparseTerms(dtm, 0.99) 
-
-# function to convert into binary 
-convert <- function(x) {
-  y <- ifelse(x > 0, 1,0)
-  y <- factor(y, levels=c(0,1), labels=c("No", "Yes"))
-  y
-}  
-
-NaiveData = apply(dtm, 2, convert)
-
-dataset = as.data.frame(as.matrix(NaiveData)) 
-dataset$ID <- SentimentData$id
-dataset$Tweet <- SentimentData$text
-dataset$Score <-  SentimentData$FinalSentiment
-dataset$Score <- factor(dataset$Score, levels=c(-1,0,1))
-write.csv(dataset,"./data/datasetNB.csv")
-# Split the data into train and test
-set.seed(12)
-split = sample(2,nrow(dataset),prob = c(0.8,0.2),replace = TRUE)
-train_set = dataset[split == 1,]
-test_set = dataset[split == 2,] 
-# check the split of the data 
-prop.table(table(train_set$Score))
-prop.table(table(test_set$Score))
-
-# Naive Bayes Model 
-library(e1071)
-library(caret)
-
-classifier_nb <- naiveBayes(x=train_set,y= train_set$Score, laplace = 1)
-nb_pred <- predict(classifier_nb,test_set)
-confusionMatrix(nb_pred,test_set$Score)
-dataset$ScoreML <- predict(classifier_nb,dataset)
-
-# Calculate auc
-if (!require("ROCR")) install.packages("ROCR", quiet=TRUE) ; require("ROCR")
-predML <- prediction(as.numeric(nb_pred),as.numeric(test_set$Score))
-# ROC curve
-perfML <- performance(predML,"tpr","fpr")
-plot(perfML)
-abline(0,1)
-
-## auc
-auc.perfML = performance(predML, measure = "auc")
-auc.perfML@y.values
-
-
-# Support Vector Machine Model 
-trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
-svm_Linear <- train(Score ~., data = train_set, method = "svmLinear",
-                    trControl=trctrl,
-                    preProcess = c("center", "scale"),
-                    tuneLength = 10)
-
-test_pred <- predict(svm_Linear, newdata = test_set)
-confusionMatrix(table(test_pred, test_set$Score))
+SentimentTweets <- SentimentTweets[,c(1,2,9)]
+write(SentimentTweets,"./data/Sentiment.csv")
