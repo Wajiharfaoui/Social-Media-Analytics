@@ -21,10 +21,66 @@ library(ggplot2)
 library(plotly)
 library(shinydashboard)
 library(rtweet)
+library(tidytext)
+library(stringr)
+library(forcats)
 
 ################ PREPARATION ------------------------------
-setwd("C:/Users/warfaoui/OneDrive - IESEG/Desktop/Social Media Analytics/Group Project/Social-Media-Analytics/Social-Media-Analytics-main/App")
+setwd('C:/Users/mserrano/OneDrive - IESEG/MSc/2ND SEMESTER/SOCIAL MEDIA ANALYTICS/Group Project/App')
 dat<-read.csv("final_all_cols.csv")
+
+dat$created_at<-as.Date(dat$created_at)
+dat$year<-year(dat$created_at)
+topics_names<-c("Donations/Supporting Foundations","Special Celebrations","Special Offers/Discounts",
+                "Order by App/Drive Thru","Limited Edition Products","Delivery Order","Others")
+topics<-data.frame("final_topic"=c(1:7),"Topic"=topics_names)
+
+dat<-merge(dat,topics,by="final_topic")
+dat$Topic<-relevel(as.factor(dat$Topic),ref="Others")
+
+summary_sentiment <- dat %>%
+  group_by(FinalSentiment)%>%
+  summarise(n=n())%>%
+  mutate(Perc_freq = paste0(round(100 * n/sum(n), 0), "%"))
+
+text <- c('Negative', 'Neutral', 'Positive')
+data_sentiment <- data.frame(summary_sentiment, text)
+
+years <- c("2020","2021","2022")
+weekend <- c(length(dat$is_weekend[dat$is_weekend==1 & year(dat$created_at) == 2020]),
+             length(dat$is_weekend[dat$is_weekend==1 & year(dat$created_at) == 2021]),
+             length(dat$is_weekend[dat$is_weekend==1 & year(dat$created_at) == 2022]))
+weekdays <- c(length(dat$is_weekend[dat$is_weekend==0 & year(dat$created_at) == 2020]),
+              length(dat$is_weekend[dat$is_weekend==0 & year(dat$created_at) == 2021]),
+              length(dat$is_weekend[dat$is_weekend==0 & year(dat$created_at) == 2022]))
+data <- data.frame(years, weekend, weekdays)
+
+
+topicPie<-function(y){
+  dat %>% filter(year==y) %>% count(Topic) %>%
+    plot_ly(labels = ~Topic,values = ~n, textinfo = "label+percent",
+            showlegend = F) %>% layout(autosize=T) %>% add_pie(hole = 0.5)
+}
+
+topicBars<-function(y){
+  dat<-data.table(dat)
+  colors<-colorspace::terrain_hcl(12,c=c(65,50),l=c(30,120),power=c(1/3,1.5))
+  counts_topics2<-dat[year==y][,.(others=sum(Topic=="Others"),del=sum(Topic=="Delivery Order"),
+                                     don=sum(Topic=="Donations/Supporting Foundations"),lim=sum(Topic=="Limited Edition Products"),
+                                     order=sum(Topic=="Order by App/Drive Thru"),celeb=sum(Topic=="Special Celebrations"),
+                                     disc=sum(Topic=="Special Offers/Discounts")),by=month]
+  
+  fig<-plot_ly(counts_topics2,x=~month,y=~others, type="bar",name="Others", marker = list(color = colors[1])) %>%
+    add_trace(y = ~del, name = 'Delivery Order', marker = list(color = colors[2])) %>% 
+    add_trace(y = ~don, name = 'Donations/Supporting Foundations', marker = list(color = colors[3])) %>% 
+    add_trace(y = ~lim, name = 'Limited Edition Products', marker = list(color = colors[4])) %>% 
+    add_trace(y = ~order, name = 'Order by App/Drive Thru', marker = list(color = colors[5])) %>% 
+    add_trace(y = ~celeb, name = 'Special Celebrations', marker = list(color = colors[6])) %>% 
+    add_trace(y = ~disc, name = 'Special Offers/Discounts', marker = list(color = colors[7])) %>% 
+    layout(yaxis = list(title = 'Count'),xaxis = list(title = '') , barmode = 'stack',legend = list(orientation="h"))
+  fig
+}
+
 
 
 ################ UI ------------------------------
@@ -40,7 +96,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                mainPanel(
                  tabsetPanel(type="tabs",
                              tabPanel('Descriptive',
-                                      fluidRow(align="center", h4(strong("Tweets' Timeline")),
+                                      fluidRow(align="left", h4(strong("Tweets' Timeline")),
                                         dateRangeInput("date_range", strong("Select the range of dates"),start=min(dat$created_at),end=max(dat$created_at),min=min(dat$created_at),max=max(dat$created_at),format = "yyyy-mm-dd")
                                       ),
                                       
@@ -52,98 +108,59 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       fluidRow(align="center",h4(strong("Top hashtags")),
                                          plotOutput("plot2", click = "plot_click2"),
                                          verbatimTextOutput("info2")
-                                      )),
+                                      ),
+                                      fluidRow(align="left",selectInput("year1","Select Year",c(2020,2021,2022))
+                                               ),
+                                      fluidRow(align="center",
+                                               h4(strong("Topics by Month")),
+                                               plotlyOutput("plot3")
+                                               ),
+                                      fluidRow(align="center",
+                                               column(6,
+                                                      h4(strong("Topic Distribution")),
+                                                      plotlyOutput("plot4")
+                                                      ),
+                                               column(6,
+                                                      h4(strong("Time Posting Distribution")),
+                                                      plotlyOutput("plot7")
+                                                      )
+                                               )
+                                      ),
 ########################## Wajih Part ends here #################### 
 
-                             tabPanel("Wordcloud",
+                             tabPanel("Descriptive 2",
                                       fluidRow(align="center",
-                                               h4(strong("Location of Users")),
-                                               plotlyOutput("mapPlot")
+                                               h4("Length of Tweets Histogram"),
+                                               plotlyOutput("plot5")
                                                ),
-                                      fluidRow(align="center", 
-                                               splitLayout(cellWidths = c("50%","50%"), h4(strong("Users' Language")),h4(strong("Top 10 Countries"))),
-                                               splitLayout(cellWidths = c("50%","50%"), plotlyOutput("plot6"),plotlyOutput("plot7")),
-                                               h4(strong("Most Used Application")),
-                                               plotlyOutput("plotApps")
+                                      fluidRow(align="center",
+                                              h4("Length of Tweets by Date"),
+                                              plotlyOutput("plot6")
+                                              ),
+                                      fluidRow(align="center",
+                                               h4("Sentiment distribution in tweets"),
+                                               plotlyOutput("plot8")
+                                              ),
+                                      fluidRow(align="center",
+                                               h4("Weekdays/weekends share of tweets"),
+                                               plotlyOutput("plot9")
                                                )
-                             )
-                             
+                                      ),
+                             tabPanel("Wordcloud"
+                                      )
                  )
                  
                )
-               
-      
-    )),
+),
     tabPanel(h4(strong("Engagement")),
              
              mainPanel(
                tabsetPanel(type="tabs",
                            tabPanel('Main',
-                                    fluidRow(align="center",
-                                             splitLayout(cellWidths = c("50%","50%"), h4(strong("Average Daily Users")),h4(strong("Daily Users by Date"))),
-                                             splitLayout(cellWidths = c("50%","50%"), plotlyOutput("plot8"),plotlyOutput("plot9")),
-                                    ),
-                                    fluidRow(align="center",
-                                      h4("Most Active Days by Product"),
-                                      plotlyOutput("plot10")
-                                    )
+                                    
                                     ),
                            tabPanel('Products',
-                                    fluidRow(align="center",
-                                             column(4,
-                                                    selectInput("selProd",strong("Select Product"),unique("Topic 1"))
-                                                    ),
-                                             column(4,
-                                                    dateInput("date_start2", strong("Start Date"),min(dat$created_at),min=min(dat$created_at),max=max(dat$created_at))
-                                             ),
-                                             column(4,
-                                                    dateInput("date_end2", strong("End Date"),"2005-09-30",min=min(dat$created_at),max=max(dat$created_at))                                             
-                                                    )
-                                             ),
-                                    fluidRow(align="center",
-                                             column(3,
-                                                    h4("Daily Users"),
-                                                    h3(strong(textOutput("DailyUsers")))
-                                             ),
-                                             column(3,
-                                                    h4("Total Stakes"),
-                                                    h3(strong(textOutput("TotStakes")))
-                                             ),
-                                             column(3,
-                                                    h4("Total Winnings"),
-                                                    h3(strong(textOutput("TotWins")))
-                                             ),
-                                             column(3,
-                                                    h4("Total Profit"),
-                                                    h3(strong(textOutput("TotBal")))
-                                             ),
-                                    ),
-                                    fluidRow(align="center",
-                                             splitLayout(cellWidths = c("50%","50%"), h4(strong("Profitability (%)")),h4(strong("One Time Players"))),
-                                             splitLayout(cellWidths = c("50%","50%"), plotlyOutput("plot11"),plotlyOutput("plot12"))
-                                    ),
-                                    fluidRow(align="center",
-                                             column(3,
-                                                    h4("Mean Bets per Day"),
-                                                    h3(strong(textOutput("MeanBets")))
-                                             ),
-                                             column(3,
-                                                    h4("Mean Stakes per Bet"),
-                                                    h3(strong(textOutput("MeanStakes")))
-                                             ),
-                                             column(3,
-                                                    h4("Mean Wins per Bet"),
-                                                    h3(strong(textOutput("MeanWins")))
-                                             ),
-                                             column(3,
-                                                    h4("Mean Balance per Bet"),
-                                                    h3(strong(textOutput("MeanBal")))
-                                             ),
-                                    ),
-                                    fluidRow(align="center",
-                                             splitLayout(cellWidths = c("40%","60%"), h4(strong("Most Active Day")),h4(strong("Recency"))),
-                                             splitLayout(cellWidths = c("40%","60%"), plotlyOutput("plot13"),plotlyOutput("plot14"))
-                                    )
+                                    
                                     )
                                     
                                     
@@ -151,10 +168,11 @@ ui <- fluidPage(theme = shinytheme("united"),
                            
                )
                
-             )
              
-    )
+             )
+)
     
+)
 
   
   
@@ -171,7 +189,7 @@ server <- function(input, output){
 output$plot1 <- renderPlot({
   dat[dat$created_at>= input$date_range[1]& dat$created_at<= input$date_range[2],] %>% ts_plot("months") +
     labs(x = NULL, y = NULL,
-         title = "Frequency of Dunckin Donuts official account tweets") + 
+         title = "Frequency of Dunkin Donuts official account tweets") + 
     theme_minimal()
 })
 
@@ -201,20 +219,58 @@ output$info2 <- renderText({
   paste0(y_str(input$plot_click2))
 })
 
-
-
 ########################## Wajih Part ends here ####################
-  # 
-  # output$plot2 <- renderPlotly({
-  #   dtmart<-data.table(dtmart)
-  #   regs<- dtmart[,.N,by=RegDate]
-  #   plot_ly(regs, type = 'scatter', mode = 'lines', fill = 'tozeroy')%>%
-  #     add_trace(x = ~RegDate, y = ~N,marker = list(color = "rgb(21, 31, 71)"),
-  #               line = list(color ='rgb(21,31,71'),
-  #               fillcolor='rgba(50, 100, 250, 0.4)') %>%
-  #     layout(showlegend = F, xaxis=list(title=""),yaxis=list(title="Number of registered users"))
-  #   })
-  # 
+  plottopicbars<-reactive({topicBars(input$year1)}) 
+  output$plot3 <- renderPlotly({
+    plottopicbars()
+    })
+  
+  plottopicpie<-reactive({topicPie(input$year1)}) 
+  output$plot4 <- renderPlotly({
+    plottopicpie()
+  })
+  
+  output$plot5 <- renderPlotly({
+    plot_ly(dat,x=~tweet_length,type="histogram", marker=list(color="#151F47")) %>%
+      layout(bargap=0.01,yaxis = list(title = 'Count'),xaxis = list(title = 'Tweet Length'))
+
+  })
+
+  output$plot6 <- renderPlotly({
+    plot_ly(dat, x = ~created_at, y = ~tweet_length, color = ~Topic,colors=colorspace::terrain_hcl(7,c=c(65,50),l=c(30,80),power=c(1/3,1.5))) %>%
+      layout(yaxis = list(title = 'Tweet Length (characters)'),xaxis = list(title = ''),legend = list(orientation="h"))
+
+  })
+  
+  output$plot7 <- renderPlotly({
+    
+  dat %>% 
+    group_by(time_of_day) %>% 
+    summarize(count = n()) %>% plot_ly(labels = ~time_of_day, values = ~count, textinfo = "label+percent",
+                                       marker = list(colors = c('rgb(227,35,139)', 'rgb(104,56,23)','rgb(0,104,87)'))) %>% 
+    add_pie(hole = 0.5) %>% layout(title = "",  showlegend = F,
+                                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                                   yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  })
+  
+  output$plot8 <- renderPlotly({
+    
+  plot_ly(data_sentiment, x = ~text, y = ~n, type = 'bar',text=~Perc_freq,
+          marker = list(color = 'rgb(158,202,225)',
+                        line = list(color = 'rgb(8,48,107)',
+                                    width = 1.5))) %>% 
+    layout(title = "",
+           xaxis = list(title = ""),
+           yaxis = list(title = ""))
+  })
+  
+  output$plot9 <- renderPlotly({
+    
+    fig <- plot_ly(data, x = ~years, y = ~weekend, type = 'bar', name = 'Weekend',marker = list(color ="E11383"))
+    fig <- fig %>% add_trace(y = ~weekdays, name = 'Weekdays',marker = list(color ="F5821F"))
+    fig <- fig %>% layout(yaxis = list(title = 'Count'), barmode = 'stack')
+    fig
+  })
   # output$plot3 <- renderPlotly({
   #   firstAct<- dtmart[FirstAct>=input$date_start&FirstAct<=input$date_end][,.N,by=FirstAct][order(FirstAct)]
   #   plot_ly(firstAct, type = 'scatter', mode = 'lines')%>%
