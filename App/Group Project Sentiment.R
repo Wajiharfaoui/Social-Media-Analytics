@@ -81,13 +81,19 @@ topicBars<-function(y){
   fig
 }
 
+hello<-function(x){
+  if (nchar(x)>280) stop("Maximum length is 280 characters!")
+  if (agrepl("hola",x)){hi="Hola amigos :)"} else {hi =""}
+  hi
+}
+
 
 
 ################ UI ------------------------------
 
 ########################## Wajih Part ####################
 ui <- fluidPage(theme = shinytheme("united"),
-                tags$img(src="dd_logo.png", align="right", height = 80, width=200),
+                tags$img(src="Dunkin'_Donuts_Logo.png", align="right", height = 100, width=250),
 
   h2(strong("Dunkin Donuts Sentiment Analysis")),
   navlistPanel( widths = c(2,10),
@@ -167,9 +173,22 @@ ui <- fluidPage(theme = shinytheme("united"),
                            )
                            
                )
+             ),
+    tabPanel(h4(strong("Engagement Predictor")),
+             mainPanel(
+               fluidRow(align="left",
+                        h4("Please input a desired Tweet"),
+                        textAreaInput("new_tweet", "", value = "Write tweet...", width = "1000px"),
+                 submitButton(" Submit",icon("twitter"))
+               ),
+               fluidRow(align="left",
+                        textOutput("text1")
+               )
+
                
-             
              )
+      
+    )
 )
     
 )
@@ -196,7 +215,7 @@ output$plot1 <- renderPlot({
 output$info <- renderText({
   y_str <- function(e) {
     if(is.null(e)) return("NULL\n")
-    paste0("Number of tweets=", round(e$y, 0), "\n Date=", format(as.POSIXct(e$x,origin="1970-01-01"),"%Y-%m-%d"))
+    paste0("Number of tweets=", round(e$y, 0))
   }
   paste0(y_str(input$plot_click))
 })
@@ -271,6 +290,12 @@ output$info2 <- renderText({
     fig <- fig %>% layout(yaxis = list(title = 'Count'), barmode = 'stack')
     fig
   })
+  
+  hello1<-reactive({ 
+    hello(input$new_tweet)
+    }) 
+  output$text1<-renderText({hello1()})
+  
   # output$plot3 <- renderPlotly({
   #   firstAct<- dtmart[FirstAct>=input$date_start&FirstAct<=input$date_end][,.N,by=FirstAct][order(FirstAct)]
   #   plot_ly(firstAct, type = 'scatter', mode = 'lines')%>%
@@ -340,7 +365,6 @@ output$info2 <- renderText({
   # 
   # #text outputs
   # 
-  # output$totUsers<-renderText({format(nrow(dtmart),big.mark=',')})
   # output$UsersDailyGen<-renderText({format(round(mean(users_daily$Users),0),big.mark=',')})
   # output$UsersDailyGenP<-renderText({format(round(mean(users_daily_p$Poker_Users),0),big.mark=',')})
   # 
