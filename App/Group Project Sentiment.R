@@ -234,10 +234,10 @@ server <- function(input, output){
       theme_minimal()
   })
   
-  output$info <- renderText({
+output$info <- renderText({
     y_str <- function(e) {
       if(is.null(e)) return("NULL\n")
-      paste0("Number of tweets=", round(e$y, 0))
+      paste0("Number of tweets=", round(e$y, 0), "\n Date=", format(as.POSIXct(e$x,origin="1970-01-01"),"%Y-%m-%d"))
     }
     paste0(y_str(input$plot_click))
   })
