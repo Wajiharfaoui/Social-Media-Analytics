@@ -24,9 +24,10 @@ library(rtweet)
 library(tidytext)
 library(stringr)
 library(forcats)
+library(tidyr)
 
 ################ PREPARATION ------------------------------
-setwd('C:/Users/mserrano/OneDrive - IESEG/MSc/2ND SEMESTER/SOCIAL MEDIA ANALYTICS/Group Project/App')
+setwd("C:/Users/warfaoui/OneDrive - IESEG/Desktop/Social Media Analytics/Group Project/Social-Media-Analytics/Social-Media-Analytics-main/App")
 dat<-read.csv("final_all_cols.csv")
 
 dat$created_at<-as.Date(dat$created_at)
@@ -66,9 +67,9 @@ topicBars<-function(y){
   dat<-data.table(dat)
   colors<-colorspace::terrain_hcl(12,c=c(65,50),l=c(30,120),power=c(1/3,1.5))
   counts_topics2<-dat[year==y][,.(others=sum(Topic=="Others"),del=sum(Topic=="Delivery Order"),
-                                     don=sum(Topic=="Donations/Supporting Foundations"),lim=sum(Topic=="Limited Edition Products"),
-                                     order=sum(Topic=="Order by App/Drive Thru"),celeb=sum(Topic=="Special Celebrations"),
-                                     disc=sum(Topic=="Special Offers/Discounts")),by=month]
+                                  don=sum(Topic=="Donations/Supporting Foundations"),lim=sum(Topic=="Limited Edition Products"),
+                                  order=sum(Topic=="Order by App/Drive Thru"),celeb=sum(Topic=="Special Celebrations"),
+                                  disc=sum(Topic=="Special Offers/Discounts")),by=month]
   
   fig<-plot_ly(counts_topics2,x=~month,y=~others, type="bar",name="Others", marker = list(color = colors[1])) %>%
     add_trace(y = ~del, name = 'Delivery Order', marker = list(color = colors[2])) %>% 
@@ -80,6 +81,25 @@ topicBars<-function(y){
     layout(yaxis = list(title = 'Count'),xaxis = list(title = '') , barmode = 'stack',legend = list(orientation="h"))
   fig
 }
+
+dat_eng <- dat %>% mutate(YearMonth = format(dat$created_at, "%Y-%m")) %>%
+  group_by(YearMonth,engagement_categ)%>% 
+  summarise(count=n())%>%
+  pivot_wider(names_from = engagement_categ, values_from = count) %>%
+  replace(is.na(.), 0)%>% 
+  setNames(.,c("date","Not_Engaging","Quite_Engaging","Engaging","Highly_Engaging"))
+
+dat_eng_weekend <- dat %>% mutate(YearMonth = format(dat$created_at, "%Y-%m"))%>%
+  filter(is_weekend == 1)%>%
+  group_by(YearMonth)%>% 
+  summarise(engagement=sum(engagement))
+
+dat_eng_weekdays <- dat %>% mutate(YearMonth = format(dat$created_at, "%Y-%m"))%>%
+  filter(is_weekend == 0)%>%
+  group_by(YearMonth)%>% 
+  summarise(engagement=sum(engagement))
+dat_eng_days <- merge(x = dat_eng_weekend, y = dat_eng_weekdays, by = "YearMonth", all = TRUE)
+dat_eng_days[is.na(dat_eng_days)] <- 0
 
 hello<-function(x){
   if (nchar(x)>280) stop("Maximum length is 280 characters!")
@@ -93,156 +113,161 @@ hello<-function(x){
 
 ########################## Wajih Part ####################
 ui <- fluidPage(theme = shinytheme("united"),
-                tags$img(src="Dunkin'_Donuts_Logo.png", align="right", height = 100, width=250),
-
-  h2(strong("Dunkin Donuts Sentiment Analysis")),
-  navlistPanel( widths = c(2,10),
-    tabPanel(h4(strong("Overview")),
-          
-               mainPanel(
-                 tabsetPanel(type="tabs",
-                             tabPanel('Descriptive',
-                                      fluidRow(align="left", h4(strong("Tweets' Timeline")),
-                                        dateRangeInput("date_range", strong("Select the range of dates"),start=min(dat$created_at),end=max(dat$created_at),min=min(dat$created_at),max=max(dat$created_at),format = "yyyy-mm-dd")
-                                      ),
-                                      
-                                      fluidRow(align="center", 
-                                        plotOutput("plot1", click = "plot_click"),
-                                        verbatimTextOutput("info")
-                                      ),
-                                      
-                                      fluidRow(align="center",h4(strong("Top hashtags")),
-                                         plotOutput("plot2", click = "plot_click2"),
-                                         verbatimTextOutput("info2")
-                                      ),
-                                      fluidRow(align="left",selectInput("year1","Select Year",c(2020,2021,2022))
-                                               ),
-                                      fluidRow(align="center",
-                                               h4(strong("Topics by Month")),
-                                               plotlyOutput("plot3")
-                                               ),
-                                      fluidRow(align="center",
-                                               column(6,
-                                                      h4(strong("Topic Distribution")),
-                                                      plotlyOutput("plot4")
-                                                      ),
-                                               column(6,
-                                                      h4(strong("Time Posting Distribution")),
-                                                      plotlyOutput("plot7")
-                                                      )
-                                               )
-                                      ),
-########################## Wajih Part ends here #################### 
-
-                             tabPanel("Descriptive 2",
-                                      fluidRow(align="center",
-                                               h4("Length of Tweets Histogram"),
-                                               plotlyOutput("plot5")
-                                               ),
-                                      fluidRow(align="center",
-                                              h4("Length of Tweets by Date"),
-                                              plotlyOutput("plot6")
-                                              ),
-                                      fluidRow(align="center",
-                                               h4("Sentiment distribution in tweets"),
-                                               plotlyOutput("plot8")
-                                              ),
-                                      fluidRow(align="center",
-                                               h4("Weekdays/weekends share of tweets"),
-                                               plotlyOutput("plot9")
-                                               )
-                                      ),
-                             tabPanel("Wordcloud"
-                                      )
-                 )
-                 
-               )
-),
-    tabPanel(h4(strong("Engagement")),
-             
-             mainPanel(
-               tabsetPanel(type="tabs",
-                           tabPanel('Main',
-                                    
-                                    ),
-                           tabPanel('Products',
-                                    
-                                    )
-                                    
-                                    
-                           )
-                           
-               )
-             ),
-    tabPanel(h4(strong("Engagement Predictor")),
-             mainPanel(
-               fluidRow(align="left",
-                        h4("Please input a desired Tweet"),
-                        textAreaInput("new_tweet", "", value = "Write tweet...", width = "1000px"),
-                 submitButton(" Submit",icon("twitter"))
-               ),
-               fluidRow(align="left",
-                        textOutput("text1")
-               )
-
-               
-             )
-      
-    )
+                tags$img(src="dd_logo.png", align="right", height = 100, width=250),
+                
+                h2(strong("Dunkin Donuts Sentiment Analysis")),
+                navlistPanel( widths = c(2,10),
+                              tabPanel(h4(strong("Overview")),
+                                       
+                                       mainPanel(
+                                         tabsetPanel(type="tabs",
+                                                     tabPanel('Descriptive',
+                                                              fluidRow(align="left", h4(strong("Tweets' Timeline")),
+                                                                       dateRangeInput("date_range", strong("Select the range of dates"),start=min(dat$created_at),end=max(dat$created_at),min=min(dat$created_at),max=max(dat$created_at),format = "yyyy-mm-dd")
+                                                              ),
+                                                              
+                                                              fluidRow(align="center", 
+                                                                       plotOutput("plot1", click = "plot_click"),
+                                                                       verbatimTextOutput("info")
+                                                              ),
+                                                              
+                                                              fluidRow(align="center",h4(strong("Top hashtags")),
+                                                                       plotOutput("plot2", click = "plot_click2"),
+                                                                       verbatimTextOutput("info2")
+                                                              ),
+                                                              fluidRow(align="left",selectInput("year1","Select Year",c(2020,2021,2022))
+                                                              ),
+                                                              fluidRow(align="center",
+                                                                       h4(strong("Topics by Month")),
+                                                                       plotlyOutput("plot3")
+                                                              ),
+                                                              fluidRow(align="center",
+                                                                       column(6,
+                                                                              h4(strong("Topic Distribution")),
+                                                                              plotlyOutput("plot4")
+                                                                       ),
+                                                                       column(6,
+                                                                              h4(strong("Time Posting Distribution")),
+                                                                              plotlyOutput("plot7")
+                                                                       )
+                                                              )
+                                                     ),
+                                                     ########################## Wajih Part ends here #################### 
+                                                     
+                                                     tabPanel("Descriptive 2",
+                                                              fluidRow(align="center",
+                                                                       h4("Length of Tweets Histogram"),
+                                                                       plotlyOutput("plot5")
+                                                              ),
+                                                              fluidRow(align="center",
+                                                                       h4("Length of Tweets by Date"),
+                                                                       plotlyOutput("plot6")
+                                                              ),
+                                                              fluidRow(align="center",
+                                                                       h4("Sentiment distribution in tweets"),
+                                                                       plotlyOutput("plot8")
+                                                              ),
+                                                              fluidRow(align="center",
+                                                                       h4("Weekdays/weekends share of tweets"),
+                                                                       plotlyOutput("plot9")
+                                                              )
+                                                     ),
+                                                     tabPanel("Wordcloud"
+                                                     )
+                                         )
+                                         
+                                       )
+                              ),
+                              tabPanel(h4(strong("Engagement")),
+                                       
+                                       mainPanel(
+                                         tabsetPanel(type="tabs",
+                                                     tabPanel('Main',
+                                                              fluidRow(align="center", h4(strong("Engagement overtime")),
+                                                                       plotlyOutput("plot10")
+                                                              ), 
+                                                              fluidRow(align="center", h4(strong("Engagement vs. Day overtime")),
+                                                                       plotlyOutput("plot11")
+                                                              )
+                                                     ),
+                                                     tabPanel('Products',
+                                                              
+                                                     )
+                                                     
+                                                     
+                                         )
+                                         
+                                       )
+                              ),
+                              tabPanel(h4(strong("Engagement Predictor")),
+                                       mainPanel(
+                                         fluidRow(align="left",
+                                                  h4("Please input a desired Tweet"),
+                                                  textAreaInput("new_tweet", "", value = "Write tweet...", width = "1000px"),
+                                                  submitButton(" Submit",icon("twitter"))
+                                         ),
+                                         fluidRow(align="left",
+                                                  textOutput("text1")
+                                         )
+                                         
+                                         
+                                       )
+                                       
+                              )
+                )
+                
 )
-    
-)
 
-  
-  
+
+
 ################ SERVER ------------------------------
 
 
 server <- function(input, output){
   
-# ############### first page users 
-# 
-# #plots
+  # ############### first page users 
+  # 
+  # #plots
   
-########################## Wajih Part ####################  
-output$plot1 <- renderPlot({
-  dat[dat$created_at>= input$date_range[1]& dat$created_at<= input$date_range[2],] %>% ts_plot("months") +
-    labs(x = NULL, y = NULL,
-         title = "Frequency of Dunkin Donuts official account tweets") + 
-    theme_minimal()
-})
-
-output$info <- renderText({
-  y_str <- function(e) {
-    if(is.null(e)) return("NULL\n")
-    paste0("Number of tweets=", round(e$y, 0))
-  }
-  paste0(y_str(input$plot_click))
-})
-
-output$plot2 <- renderPlot({
-  dat %>% 
-    unnest_tokens(hashtag, text, "tweets", to_lower = FALSE) %>%
-    filter(str_detect(hashtag, "^#")) %>%
-    count(hashtag, sort = TRUE) %>%
-    top_n(10)%>% mutate(name = fct_reorder(hashtag, n)) %>% 
-    ggplot( aes(x=name, y=n)) + geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) + 
-    coord_flip() + xlab("") + theme_bw()
-})
-
-output$info2 <- renderText({
-  y_str <- function(e) {
-    if(is.null(e)) return("NULL\n")
-    paste0("Number of tweets=", round(e$y, 0))
-  }
-  paste0(y_str(input$plot_click2))
-})
-
-########################## Wajih Part ends here ####################
+  ########################## Wajih Part ####################  
+  output$plot1 <- renderPlot({
+    dat[dat$created_at>= input$date_range[1]& dat$created_at<= input$date_range[2],] %>% ts_plot("months") +
+      labs(x = NULL, y = NULL,
+           title = "Frequency of Dunkin Donuts official account tweets") + 
+      theme_minimal()
+  })
+  
+  output$info <- renderText({
+    y_str <- function(e) {
+      if(is.null(e)) return("NULL\n")
+      paste0("Number of tweets=", round(e$y, 0))
+    }
+    paste0(y_str(input$plot_click))
+  })
+  
+  output$plot2 <- renderPlot({
+    dat %>% 
+      unnest_tokens(hashtag, text, "tweets", to_lower = FALSE) %>%
+      filter(str_detect(hashtag, "^#")) %>%
+      count(hashtag, sort = TRUE) %>%
+      top_n(10)%>% mutate(name = fct_reorder(hashtag, n)) %>% 
+      ggplot( aes(x=name, y=n)) + geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) + 
+      coord_flip() + xlab("") + theme_bw()
+  })
+  
+  output$info2 <- renderText({
+    y_str <- function(e) {
+      if(is.null(e)) return("NULL\n")
+      paste0("Number of tweets=", round(e$y, 0))
+    }
+    paste0(y_str(input$plot_click2))
+  })
+  
+  ########################## Wajih Part ends here ####################
   plottopicbars<-reactive({topicBars(input$year1)}) 
   output$plot3 <- renderPlotly({
     plottopicbars()
-    })
+  })
   
   plottopicpie<-reactive({topicPie(input$year1)}) 
   output$plot4 <- renderPlotly({
@@ -252,35 +277,35 @@ output$info2 <- renderText({
   output$plot5 <- renderPlotly({
     plot_ly(dat,x=~tweet_length,type="histogram", marker=list(color="#151F47")) %>%
       layout(bargap=0.01,yaxis = list(title = 'Count'),xaxis = list(title = 'Tweet Length'))
-
+    
   })
-
+  
   output$plot6 <- renderPlotly({
     plot_ly(dat, x = ~created_at, y = ~tweet_length, color = ~Topic,colors=colorspace::terrain_hcl(7,c=c(65,50),l=c(30,80),power=c(1/3,1.5))) %>%
       layout(yaxis = list(title = 'Tweet Length (characters)'),xaxis = list(title = ''),legend = list(orientation="h"))
-
+    
   })
   
   output$plot7 <- renderPlotly({
     
-  dat %>% 
-    group_by(time_of_day) %>% 
-    summarize(count = n()) %>% plot_ly(labels = ~time_of_day, values = ~count, textinfo = "label+percent",
-                                       marker = list(colors = c('rgb(227,35,139)', 'rgb(104,56,23)','rgb(0,104,87)'))) %>% 
-    add_pie(hole = 0.5) %>% layout(title = "",  showlegend = F,
-                                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                                   yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+    dat %>% 
+      group_by(time_of_day) %>% 
+      summarize(count = n()) %>% plot_ly(labels = ~time_of_day, values = ~count, textinfo = "label+percent",
+                                         marker = list(colors = c('rgb(227,35,139)', 'rgb(104,56,23)','rgb(0,104,87)'))) %>% 
+      add_pie(hole = 0.5) %>% layout(title = "",  showlegend = F,
+                                     xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                                     yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
   })
   
   output$plot8 <- renderPlotly({
     
-  plot_ly(data_sentiment, x = ~text, y = ~n, type = 'bar',text=~Perc_freq,
-          marker = list(color = 'rgb(158,202,225)',
-                        line = list(color = 'rgb(8,48,107)',
-                                    width = 1.5))) %>% 
-    layout(title = "",
-           xaxis = list(title = ""),
-           yaxis = list(title = ""))
+    plot_ly(data_sentiment, x = ~text, y = ~n, type = 'bar',text=~Perc_freq,
+            marker = list(color = 'rgb(158,202,225)',
+                          line = list(color = 'rgb(8,48,107)',
+                                      width = 1.5))) %>% 
+      layout(title = "",
+             xaxis = list(title = ""),
+             yaxis = list(title = ""))
   })
   
   output$plot9 <- renderPlotly({
@@ -293,9 +318,36 @@ output$info2 <- renderText({
   
   hello1<-reactive({ 
     hello(input$new_tweet)
-    }) 
+  }) 
   output$text1<-renderText({hello1()})
   
+  output$plot10 <- renderPlotly({
+    
+    fig <- dat_eng %>% ungroup() %>% 
+      plot_ly(., x = ~date, y = ~Not_Engaging, type = 'bar', name = 'Not Engaging', marker = list(color = '#679EAD'))
+    
+    
+    fig <- fig %>% add_trace(y = ~Quite_Engaging, name = 'Quite Engaging', marker = list(color = '#683817'))
+    fig <- fig %>% add_trace(y = ~Engaging, name = 'Engaging', marker = list(color = '#f5821f'))
+    fig <- fig %>% add_trace(y = ~Highly_Engaging, name = 'Highly Engaging', marker = list(color = '#e11383'))
+    
+    fig <- fig %>% layout(xaxis = list(title = "", tickangle = -45),
+                          yaxis = list(title = ""),
+                          margin = list(b = 100),
+                          barmode = 'group')
+    fig
+    
+  })
+  
+  output$plot11 <- renderPlotly({ 
+    
+    fig <- plot_ly(dat_eng_days, x = ~YearMonth, y = ~engagement.y, type = 'bar', name = 'Weekdays', marker = list(color = '#f5821f'))
+    fig <- fig %>% add_trace(y = ~engagement.x, name = 'Weekend', marker = list(color = '#e11383'))
+    fig <- fig %>% layout(yaxis = list(title = 'Count'), barmode = 'stack')
+    
+    fig
+    
+  })
   # output$plot3 <- renderPlotly({
   #   firstAct<- dtmart[FirstAct>=input$date_start&FirstAct<=input$date_end][,.N,by=FirstAct][order(FirstAct)]
   #   plot_ly(firstAct, type = 'scatter', mode = 'lines')%>%
@@ -605,7 +657,7 @@ output$info2 <- renderText({
   # 
   # output$MeanBuys<-renderText({format(round(mean(users_daily_pok()$MeanBuys,na.rm=T),2),big.mark=',')})
   # output$MeanSells<-renderText({format(round(mean(users_daily_pok()$MeanSell,na.rm=T),2),big.mark=',')})
-
+  
 } 
 
 shinyApp(ui = ui, server = server)
