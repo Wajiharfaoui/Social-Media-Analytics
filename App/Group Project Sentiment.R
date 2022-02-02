@@ -27,7 +27,7 @@ library(forcats)
 library(tidyr)
 
 ################ PREPARATION ------------------------------
-setwd("C:/Users/warfaoui/OneDrive - IESEG/Desktop/Social Media Analytics/Group Project/Social-Media-Analytics/Social-Media-Analytics-main/App")
+setwd('C:/Users/mserrano/OneDrive - IESEG/MSc/2ND SEMESTER/SOCIAL MEDIA ANALYTICS/Group Project/App')
 dat<-read.csv("final_all_cols.csv")
 
 dat$created_at<-as.Date(dat$created_at)
@@ -40,7 +40,7 @@ dat<-merge(dat,topics,by="final_topic")
 dat$Topic<-relevel(as.factor(dat$Topic),ref="Others")
 
 summary_sentiment <- dat %>%
-  group_by(FinalSentiment)%>%
+  group_by(vader_sentiment)%>%
   summarise(n=n())%>%
   mutate(Perc_freq = paste0(round(100 * n/sum(n), 0), "%"))
 
@@ -111,7 +111,6 @@ hello<-function(x){
 
 ################ UI ------------------------------
 
-########################## Wajih Part ####################
 ui <- fluidPage(theme = shinytheme("united"),
                 tags$img(src="dd_logo.png", align="right", height = 100, width=250),
                 
@@ -152,8 +151,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                                                        )
                                                               )
                                                      ),
-                                                     ########################## Wajih Part ends here #################### 
-                                                     
+
                                                      tabPanel("Descriptive 2",
                                                               fluidRow(align="center",
                                                                        h4("Length of Tweets Histogram"),
@@ -204,7 +202,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                          fluidRow(align="left",
                                                   h4("Please input a desired Tweet"),
                                                   textAreaInput("new_tweet", "", value = "Write tweet...", width = "1000px"),
-                                                  submitButton(" Submit",icon("twitter"))
+                                                  actionButton("submit","Submit", icon("twitter"))
                                          ),
                                          fluidRow(align="left",
                                                   textOutput("text1")
@@ -229,7 +227,6 @@ server <- function(input, output){
   # 
   # #plots
   
-  ########################## Wajih Part ####################  
   output$plot1 <- renderPlot({
     dat[dat$created_at>= input$date_range[1]& dat$created_at<= input$date_range[2],] %>% ts_plot("months") +
       labs(x = NULL, y = NULL,
@@ -319,7 +316,9 @@ server <- function(input, output){
   hello1<-reactive({ 
     hello(input$new_tweet)
   }) 
-  output$text1<-renderText({hello1()})
+  observeEvent(input$submit, {
+    output$text1<-renderText({hello1()})
+  })
   
   output$plot10 <- renderPlotly({
     
