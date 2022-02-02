@@ -11,6 +11,8 @@ library(lexicon)
 library(syuzhet)
 library(tm)
 library(SnowballC)
+install.packages("vader")
+library(vader)
 
 # this function applies count_matches on a vector of texts and outputs a data.frame
 emojis_matching <- function(texts, matchto, sentiment = NA) {
@@ -56,16 +58,20 @@ count_matches <- function(string, matchto, sentiment = NA) {
 tweets <- read.csv("./data/tweets.csv")
 tweets_text <- tweets[,c("id","text")]
 
+tweets_sentiment <- tweets_text %>% 
+  mutate(vader_sentiment = vader_df(tweets_text["text"], incl_nt = T, neu_set = T, rm_qm = F)["compound"])
+
+
 # Remove numbers,punctuation, URLs, hashtags, mentions, controls, special characters  
-tweets_text <- mutate(tweets_text, text = gsub("[0-9]+|[[:punct:]]|http\\S+\\s*|#\\S+|@\\S+|[[:cntrl:]]|\\d|[[:punct:]]|","",text))
+tweets_sentiment <- mutate(tweets_sentiment, text = gsub("[0-9]+|[[:punct:]]|http\\S+\\s*|#\\S+|@\\S+|[[:cntrl:]]|\\d|[[:punct:]]|","",text))
 
 
 # lowercase 
-tweets_text$text <- tolower(tweets_text$text)
+tweets_sentiment$text <- tolower(tweets_sentiment$text)
 
 
-# Removeleading and trailing whitespaces
-tweets_clean <- mutate(tweets_text, text = gsub("^[[:space:]]*|[[:space:]]*$|","",text))
+# Remove leading and trailing whitespaces
+tweets_clean <- mutate(tweets_sentiment, text = gsub("^[[:space:]]*|[[:space:]]*$|","",text))
 
 tweets_clean$text <- iconv(tweets_clean$text, from = "latin1", to = "ascii", sub = "byte")
 # according to this study (https://aclanthology.org/L14-1265/), removing stopwords when doing sentiment analysis degrades classification performance.
@@ -146,9 +152,9 @@ SentimentTweets$syuzhetSentiment <- sign(SentimentTweets$syuzhetSentiment)
 SentimentTweets$BingSentiment <- sign(SentimentTweets$BingSentiment)
 SentimentTweets$AfinSentiment <- sign(SentimentTweets$AfinSentiment)
 SentimentTweets$NrcSentiment <- sign(SentimentTweets$NrcSentiment)
-
+SentimentTweets$vader_sentiment<- sign(SentimentTweets$vader_sentiment)
 # Calculate final score 
-SentimentTweets$FinalSentiment <- sign(rowMeans(SentimentTweets[,3:8], na.rm=TRUE))
+SentimentTweets$FinalSentiment <- sign(rowMeans(SentimentTweets[,4:9], na.rm=TRUE))
 
 
 SentimentData <- SentimentTweets %>%
@@ -156,5 +162,7 @@ SentimentData <- SentimentTweets %>%
   mutate(text=gsub("<.*?>", "",text))
 
 SentimentTweets <- apply(SentimentTweets,2,as.character)
-SentimentTweets <- SentimentTweets[,c(1,2,9)]
+
+# After comparing the different rule based methods we ended up choosing the varder compound score
+SentimentTweets <- SentimentTweets[,c(1,2,3)]
 write(SentimentTweets,"./data/Sentiment.csv")
