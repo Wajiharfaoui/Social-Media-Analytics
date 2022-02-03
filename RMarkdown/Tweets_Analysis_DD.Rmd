@@ -62,7 +62,6 @@ After comparing these two methods' results, we chose to consider the **Vader** r
 ### Model creation & evaluation 
 
 ```{r echo=FALSE}
-
 ```
 The team proceeded with the model creation firstly by creating dummy variables of all categorical variables present in the selected features. Once these variables were added, the target variable was defined to be the **engagement_categ**, setting the purpose of the model to be a classification of the tweet between all pre-defined engagement categories, ranging from 1 to 4, where 1 is the less engaging and 4 the most engaging tweets categories.
 
@@ -80,8 +79,33 @@ knitr::include_graphics("ROC_Curves.png")
 ### Overview 
 
 - Dunkin Donuts had a the highest peak of tweets for the period of analysis, during  **September 2020**, with tweets about the **National Dunkin day** that took place on Tuesday, September 29, 2020, calling customers to visit DD's locals and announcing different offers on that occasion (`60 tweets`).  
+
+
+```{r freq, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("freq.png")
+```
+
+
 - The majority of Dunkin Donuts tweets were publishing during the afternoon `64%`, followed by tweets posted during the evening `28%`, with a dominance for tweets published in the **weekdays** rather than **weekends**. 
+```{r time, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("Time.png")
+```
+
 - **Diverse tweets** are the one dominating the coverage with `34%` of the share of voice, followed by tweets announcing **special offers** `14%`, and **special celebrations** posts `13%`.   
 - Most of the tweets are with length around the **ideal tweet's length** which is **100 characters**, with the range [60-80] characters being the one with the highest number of tweets `114 tweets`.  
-- Positive tweets are dominating the coverage with `59%` of overall tweets. 
-  
+
+```{r length, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("length.png")
+```
+
+- Positive tweets are dominating the coverage with `59%` of overall tweets.  
+- Positive tweets are keeping the lead of SOV overtime, with the highest peak being recorded during **April 2020**. This peak is fueled by posts praising the role played by the healthcare staff to save lives during the pandemic.  
+```{r sentiment, echo=FALSE, fig.cap="ROC Curves", out.width = '80%'}
+knitr::include_graphics("sentiment.png")
+```
+
+- `53%` of the total Dunkin Donuts tweets are tweets with **media attachements**, with **photos** being the most frequent media type to include with tweets `76%`.  
+
+```{r media, echo=FALSE,  out.width = '80%'}
+knitr::include_graphics("media.png")
+```
