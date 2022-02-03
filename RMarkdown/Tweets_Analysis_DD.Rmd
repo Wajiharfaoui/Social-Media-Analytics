@@ -56,6 +56,7 @@ After comparing these two methods' results, we chose to consider the **Vader** r
 As an additional feature we extracted the main topic for the tweets by implementing an LDA analysis. 
 - As a first step we removed the emojis, normalized the text and removed irrelevant words (for the topic modeling). For this last step we identified the part of speech of each word in the tweet and after this we used the words classified as Adjectives, nouns, proper nouns and interjections. As a final step for cleaning we used the lemmatisation to extract the intended meaning of the words.  
 
+
 - The second part of the analysis is related to finding the optimal number of topics for the LDA. For this process we calculated the metrics Griffiths2004, CaoJuan2009, Arun2010 and Deveaud2014. The graph corresponding to the metrics curves is shown below. 
 ```{r  echo=FALSE, fig.cap="metrics LDA", out.width = '100%'}
 knitr::include_graphics("topics_num.png")
@@ -69,11 +70,6 @@ knitr::include_graphics("topic_words.png")
 ```
 
 - Finally, after analyzing the results we observed that the tweets with the lowest relationship with the topics were related to random topics or were very short to identify the real topic. For this reason we created a different topic to include the tweets with gammas less than 19%, this category is identified as "Others"   
-
-
-
-
-
 
 ### Model creation & evaluation 
 
