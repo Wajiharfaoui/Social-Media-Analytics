@@ -13,7 +13,6 @@ The aim of this project is to help the social media manager of **Dunkin Donuts**
 
 ## 
 
-
 ## The Project's steps
 
 ### Retrieving Data
@@ -64,6 +63,15 @@ After comparing these two methods' results, we chose to consider the **Vader** r
 
 ```{r echo=FALSE}
 
+```
+The team proceeded with the model creation firstly by creating dummy variables of all categorical variables present in the selected features. Once these variables were added, the target variable was defined to be the **engagement_categ**, setting the purpose of the model to be a classification of the tweet between all pre-defined engagement categories, ranging from 1 to 4, where 1 is the less engaging and 4 the most engaging tweets categories.
+
+The next step of this process was to split the data into training and testing set, choosing a stratified partition of 80% for the training and 20% for the test sets. Once we had the data ready to be processed, we compared different models’ performance and chose the Multinomial Neural Network, provided by the **nnet** 	R package. The model predicted the tweets of the testing set in terms of probability for each category and we selected the highest probability as the chosen label. 
+
+For the evaluation process we used the **ROCR** R package which allowed us to evaluate the AUC of the model, obtaining an AUC of approximately `71%`. The graph corresponding to the ROC curves of the model is shown below.
+
+```{r pressure, echo=FALSE, fig.cap="ROC Curves", out.width = '80%'}
+knitr::include_graphics("ROC_Curves.png")
 ```
 
 
