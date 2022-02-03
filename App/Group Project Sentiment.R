@@ -263,8 +263,9 @@ ui <- fluidPage(theme = shinytheme("united"),
                                        
                                        mainPanel(
                                          tabsetPanel(type="tabs",
-                                                     tabPanel('Descriptive',
-                                                              fluidRow(h4(strong("Tweets' Timeline")),align="center"
+                                                     tabPanel('Descriptive 1',br(),br(),
+                                                              
+                                                              fluidRow(h3(strong("Tweets' Timeline")),align="center"
                                                               ),
                                                               
                                                               fluidRow(align="left",
@@ -273,70 +274,72 @@ ui <- fluidPage(theme = shinytheme("united"),
                                                               
                                                               fluidRow(align="center", 
                                                                        plotOutput("plot1", click = "plot_click"),br(),br(),
-                                                                       verbatimTextOutput("info")
+                                                                       verbatimTextOutput("info"),br(),br()
                                                               ),
                                                               
-                                                              fluidRow(align="center",h4(strong("Top hashtags")),
-                                                                       plotOutput("plot2", click = "plot_click2"),
-                                                                       verbatimTextOutput("info2")
+                                                              fluidRow(align="center",h3(strong("Top hashtags")),br(),br(),
+                                                                       plotOutput("plot2", click = "plot_click2"),br(),br(),
+                                                                       verbatimTextOutput("info2"),br(),br()
+                                                              ),
+                                                              fluidRow(align="center",
+                                                                       h3(strong("Topics by Month"))
                                                               ),
                                                               fluidRow(align="left",selectInput("year1","Select Year",c(2020,2021,2022))
                                                               ),
                                                               fluidRow(align="center",
-                                                                       h4(strong("Topics by Month")),
-                                                                       plotlyOutput("plot3")
+                                                                       plotlyOutput("plot3"),br(),br()
                                                               ),
                                                               fluidRow(align="center",
                                                                        column(6,
-                                                                              h4(strong("Topic Distribution")),
+                                                                              h3(strong("Topic Distribution")),br(),br(),
                                                                               plotlyOutput("plot4")
                                                                        ),
                                                                        column(6,
-                                                                              h4(strong("Time Posting Distribution")),
+                                                                              h3(strong("Time Posting Distribution")),br(),br(),
                                                                               plotlyOutput("plot7")
                                                                        )
                                                               )
                                                      ),
                                                      
-                                                     tabPanel("Descriptive 2",
+                                                     tabPanel("Descriptive 2",br(),br(),
                                                               fluidRow(align="center",
-                                                                       h4(strong("Length of Tweets Histogram")),
-                                                                       plotlyOutput("plot5")
+                                                                       h3(strong("Length of Tweets Histogram")),br(),br(),
+                                                                       plotlyOutput("plot5"),br(),br()
                                                               ),
                                                               fluidRow(align="center",
-                                                                       h4(strong("Length of Tweets by Date")),
-                                                                       plotlyOutput("plot6")
+                                                                       h3(strong("Length of Tweets by Date")),br(),br(),
+                                                                       plotlyOutput("plot6"),br(),br()
                                                               ),
                                                               fluidRow(align="center",
-                                                                       h4(strong("Sentiment distribution in tweets")),
-                                                                       plotlyOutput("plot8")
+                                                                       h3(strong("Sentiment distribution in tweets")),br(),br(),
+                                                                       plotlyOutput("plot8"),br(),br()
                                                               ),
                                                               fluidRow(align="center",
-                                                                       h4(strong("Weekdays/weekends share of tweets")),
-                                                                       plotlyOutput("plot9")
-                                                              ),
-                                                              fluidRow(align="left",
-                                                                       dateRangeInput("date_range2", strong("Select the range of dates"),start=min(dat$created_at),end=max(dat$created_at),min=min(dat$created_at),max=max(dat$created_at),format = "yyyy-mm-dd")
-                                                                       ),
-                                                              fluidRow(align="center",
-                                                                       h4(strong("Tweets sentiment over months")),
-                                                                       plotlyOutput("plot12")
+                                                                       h3(strong("Weekdays/weekends share of tweets")),br(),br(),
+                                                                       plotlyOutput("plot9"),br(),br()
                                                               ),
                                                               fluidRow(align="left",
-                                                                       dateRangeInput("date_range3", strong("Select the range of dates"),start=min(dat$created_at),end=max(dat$created_at),min=min(dat$created_at),max=max(dat$created_at),format = "yyyy-mm-dd")
+                                                                       dateRangeInput("date_range2", strong("Select the range of dates"),start=min(dat$created_at),end=max(dat$created_at),min=min(dat$created_at),max=max(dat$created_at),format = "yyyy-mm-dd"),br(),br()
                                                               ),
                                                               fluidRow(align="center",
-                                                                       h4("Media Distribution"),
+                                                                       h3(strong("Tweets sentiment over months")),br(),br(),
+                                                                       plotlyOutput("plot12"),br(),br()
+                                                              ),
+                                                              fluidRow(align="left",
+                                                                       dateRangeInput("date_range3", strong("Select the range of dates"),start=min(dat$created_at),end=max(dat$created_at),min=min(dat$created_at),max=max(dat$created_at),format = "yyyy-mm-dd"),br(),br()
+                                                              ),
+                                                              fluidRow(align="center",
+                                                                       h3(strong("Media Distribution")),br(),br(),
                                                                        plotlyOutput("plot13")
                                                               )
                                                      ),
-                                                     tabPanel("Wordcloud",
+                                                     tabPanel("Descriptive 3",br(),br(),
                                                               fluidRow(align="left",
-                                                                       selectInput("sel_topic","Select Topic",topics$Topic)
-                                                                       ),
+                                                                       selectInput("sel_topic","Select Topic",topics$Topic),br(),br()
+                                                              ),
                                                               fluidRow(align="center",
-                                                                       wordcloud2Output("wordcloud1"))
-                                                              )
+                                                                       wordcloud2Output("wordcloud1")),br(),br()
+                                                     )
                                          )
                                          
                                        )
@@ -345,21 +348,21 @@ ui <- fluidPage(theme = shinytheme("united"),
                                        
                                        mainPanel(
                                          tabsetPanel(type="tabs",
-                                                     tabPanel('Main',
-                                                              fluidRow(align="center", h4(strong("Engagement Over Time")),
+                                                     tabPanel('Descriptive 1',br(),br(),
+                                                              fluidRow(align="center", h3(strong("Engagement Over Time")),br(),br(),
                                                                        plotlyOutput("plot10")
                                                               ), 
-                                                              fluidRow(align="center", h4(strong("Engagement vs. Day Over Time")),
+                                                              fluidRow(align="center", h3(strong("Engagement vs. Day Over Time")),br(),br(),
                                                                        plotlyOutput("plot11")
                                                               ),
-                                                              fluidRow(align="center", h4(strong("Engagement vs. Topics")),
+                                                              fluidRow(align="center", h3(strong("Engagement vs. Topics")),br(),br(),
                                                                        plotlyOutput("plot14")
                                                               ),
-                                                              fluidRow(align="center", h4(strong("Engagement vs. Media")),
+                                                              fluidRow(align="center", h3(strong("Engagement vs. Media")),br(),br(),
                                                                        plotlyOutput("plot15")
                                                               )
                                                      ),
-                                                     tabPanel('Products',
+                                                     tabPanel('Descriptive 2',br(),br()
                                                               
                                                      )
                                                      
@@ -372,7 +375,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                        mainPanel(
                                          fluidRow(align="left",
                                                   h4("Please input a desired Tweet"),
-                                                  textAreaInput("new_tweet", "", value = "Write tweet...", width = "1000px"),
+                                                  textAreaInput("new_tweet", "", value = "Write tweet...", width = "1000px"),br(),br(),
                                                   actionButton("submit","Submit", icon("twitter"))
                                          ),
                                          fluidRow(align="left",
@@ -486,10 +489,10 @@ server <- function(input, output){
   hello1<-reactive({ 
     hello(input$new_tweet)
   }) 
-    output$text1<-renderText({
-      req(input$submit)
-      return(isolate(hello1()))
-      })
+  output$text1<-renderText({
+    req(input$submit)
+    return(isolate(hello1()))
+  })
   
   output$plot10 <- renderPlotly({
     
@@ -532,7 +535,7 @@ server <- function(input, output){
     sentGraph()
   })
   
-
+  
   mediaGraph<-reactive({ 
     generateMediaCount(input$date_range2[1],input$date_range2[2])
   }) 
