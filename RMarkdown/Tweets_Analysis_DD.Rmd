@@ -1,6 +1,7 @@
 ---
 title: "Predictions of online engagement for Dunkin Donuts tweets"
 output: pdf_document
+author: "Wajih Arfaoui, Mario Serrano, Juliana Sanchez Ramirez, Pedro Roman Infante"
 ---
 <style> body {text-align: justify} </style> <!-- Justify text. -->
 ```{r setup, include=FALSE}
@@ -9,9 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## The project's objective
 
-The aim of this project is to help the social media manager of **Dunkin Donuts** to predict online engagement for his next.
-
-## 
+The aim of this project is to help the social media manager of **Dunkin Donuts** to predict online engagement for his next tweet and also understanding the main drivers of engagement in twitter.
 
 ## The Project's steps
 
@@ -122,7 +121,7 @@ knitr::include_graphics("sentiment.png")
 
 - `53%` of the total Dunkin Donuts tweets are tweets with **media attachements**, with **photos** being the most frequent media type to include with tweets `76%`.  
 
-```{r media, echo=FALSE,  out.width = '80%'}
+```{r media, echo=FALSE,  out.width = '90%'}
 knitr::include_graphics("media.png")
 ```
 
@@ -156,3 +155,65 @@ knitr::include_graphics("topics_engagement.PNG")
 ```{r engag_media, echo=FALSE, out.width = '80%'}
 knitr::include_graphics("engagementMedia.PNG")
 ```
+
+- In the following barchart we can see the distribution of uppercase vs engagement categories. It is worth to mention that most highly engaging tweets contain from 1 to 4 uppercase letters, which suggests us that the normally redacted tweets are more engaging than those with overused uppercase letters.
+
+```{r engag_upper, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("uppercase.png")
+```
+
+- We also analyzed the most and least engaging hashtags and resulted to be #NationalDunkinDay and # respectively
+
+- In the **Engagement vs Sentiment Over Time** chart we can appreciate a similar distribution of engagement for all sentiment categories, only remarking the peak of negative sentiment for the month of **January 2022**. However, looking at the tweets of that month we could perceive that most of the tweets published used a sarcastic senes, and that's the reason of the peak. Therefore, we could conclude that sarcastic tweets have a high engagement.
+
+```{r engag_sentOT, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("eng_sent_OT.png")
+```
+
+\newpage
+- For the Engagement category over time we could not see a seasonality of the categories, as shown below in the graph.
+
+```{r engag_categOT, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("engag_categOT.PNG")
+```
+
+- In the bubble graph related to the tweet length we can see that most of the highly engaging tweets are of short length, whereas the low engaging tweets have a long length 
+
+```{r engag_length, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("tweet_length.png")
+```
+
+- Looking at the time of the post vs engagement categories we can perceive that even if Late Night tweets are not common in the account, they are most frequently within the highly engaging category as displayed in the following graph
+
+```{r engag_dayot, echo=FALSE, out.width = '60%'}
+knitr::include_graphics("hour_of_day.png")
+```
+
+\newpage
+## Recommendations
+After understanding and analyzing the information collected the team found the following key drivers of engagement for Dunkin Donuts in twitter:
+
+
+
+1. Tweets related to special celebrations like Halloween, Saint valentine's day and National Donut day have special engagement, more than half of these tweets are highly engaging or engaging. However, the number of posts for these months is low. For this reason we encourage **Dunkin Donuts** to increase the number of posts for the months of **February and September**.
+
+
+
+2. A second important driver of engagement is related to the structure of the tweet. In this case we found that the most engaging tweets have an average length smaller than the not engaging tweets. Also, the tweets with less than **4 upper case letters** are 3 times more engaging than the ones with more upper case letters. Therefore, we recommend **Dunkin Donuts** to elaborate tweets with these characterstics.
+
+
+
+3. Next, we analysed the influence of media included in the tweets. In this aspect we found that tweets including **gifs** are specially engaging which leads us to the conclusion that the followers and interactions in ´Twitter for **Dunkin Donuts** are more attracted by the presence of **gifs** and those could be included more often as now the percentage of tweets including gifs is just 1.18%.
+
+
+
+4. Finally, according to the analysis the engagement of the tweets tends to be higher in the afternoons and late nights. Therefore, **Dunkin Donuts** could increase the number of tweets posted during **afternoons and evenings**. Because Twitter users tend to check on their accounts when finishing work/school or before sleeping.
+
+## References   
+- <https://cran.r-project.org/web/packages/vader/vader.pdf>
+- <https://stackoverflow.com/questions/37704212/extract-month-and-year-from-date-in-r>
+- <https://datascienceplus.com/sentiment-analysis-with-machine-learning-in-r/>
+- <https://towardsdatascience.com/a-guide-to-mining-and-analysing-tweets-with-r-2f56818fdd16>
+- <https://medium.com/analytics-vidhya/tweet-analysis-using-naive-bayes-algorithm-in-r-3f746d09bb0f>
+- <https://www.r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html>
+- <https://www.rdocumentation.org/packages/nnet/versions/7.3-12/topics/multinom?>
