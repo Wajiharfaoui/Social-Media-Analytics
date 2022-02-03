@@ -81,16 +81,20 @@ The next step of this process was to split the data into training and testing se
 
 For the evaluation process we used the **ROCR** R package which allowed us to evaluate the AUC of the model, obtaining an AUC of approximately `71%`. The graph corresponding to the ROC curves of the model is shown below.
 
-```{r pressure, echo=FALSE, fig.cap="ROC Curves", out.width = '80%'}
+```{r pressure, echo=FALSE, fig.cap="ROC Curves", out.width = '40%'}
 knitr::include_graphics("ROC_Curves.png")
 ```
 
+
+
+
+\newpage
 
 ## Insights 
 
 ### Overview 
 
-- Dunkin Donuts had a the highest peak of tweets for the period of analysis, during  **September 2020**, with tweets about the **National Dunkin day** that took place on Tuesday, September 29, 2020, calling customers to visit DD's locals and announcing different offers on that occasion (`60 tweets`).  
+- Dunkin Donuts had the highest peak of tweets for the period of analysis, during  **September 2020**, with tweets about the **National Dunkin day** that took place on Tuesday, September 29, 2020, calling customers to visit DD's locals and announcing different offers on that occasion (`60 tweets`).  
 
 
 ```{r freq, echo=FALSE, out.width = '80%'}
@@ -120,4 +124,35 @@ knitr::include_graphics("sentiment.png")
 
 ```{r media, echo=FALSE,  out.width = '80%'}
 knitr::include_graphics("media.png")
+```
+
+\newpage
+
+### Engagement
+
+- In the graph shown below, it is perceivable that Dunkin Donuts' tweets vary within the engagement categories, therefore, their posts are not constant in terms of connecting to the people. As an example we can perceive that the peak for the **Not Engaging** category was during the month of **Dec 2020** whereas the peak for **Highly Engaging** tweets was during **September** of the same year.
+
+```{r engag_categ, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("engag_categOT.PNG")
+```
+
+- As it is displayed in the **Engagement vs Day Over Time** graph, most of the tweets published by DD are done during weekdays, therefore, there is no proof that the day of the week affects the engagement of the tweet. Also, the month of **September** is the highest engaging month, due to the **#NationalDunkinDay**.
+
+```{r engagmentOT, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("engagementOT.PNG")
+```
+
+\newpage
+
+- The **Engagement vs. Topics** chart displays the distribuion of each topic vs engagement. Clearly, we can see that the most engaging topics are: **Special Celebrations **  and **Others**, followed by **Order by App/ Drive Thru**.
+
+```{r engag_topic, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("topics_engagement.PNG")
+```
+
+- In the **Engagement vs Media** graph, we analyze the impact of media on tweet's engagement. Counterintuitively, highest engaging tweets do not contain media. However, most of the tweets belonging to the subsequent categories contain media.
+
+
+```{r engag_media, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("engagementMedia.PNG")
 ```
