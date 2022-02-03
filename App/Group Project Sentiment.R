@@ -24,9 +24,9 @@ dat<-read.csv("final_all_cols.csv")
 data <- readRDS("final_all_cols.RDS")
 
 dat$categ_name <- ifelse(dat$engagement_categ==1,"4. Not Engaging",
-                                    ifelse(dat$engagement_categ==2,"3. Quite engaging",
-                                           ifelse(dat$engagement_categ==3, "2. Engaging",
-                                                  "1. Highly engaging")))
+                         ifelse(dat$engagement_categ==2,"3. Quite engaging",
+                                ifelse(dat$engagement_categ==3, "2. Engaging",
+                                       "1. Highly engaging")))
 #general data preparation ----
 
 dat$created_at<-as.Date(dat$created_at)
@@ -124,9 +124,9 @@ data_graph_media$engagement_categ <- factor(data_graph_media$engagement_categ, l
 source("EngagementModelPred.R")
 # Upper case words vs engagement
 dat$upper_categ <-ifelse(dat$upper_count <=4 , "1. Less than 4",
-                                    ifelse(dat$upper_count <= 10, "2. Upper case [5 - 10]",
-                                           ifelse(dat$upper_count <= 15, "3. Upper case [11 - 15]",
-                                                  "4. More than 15")))
+                         ifelse(dat$upper_count <= 10, "2. Upper case [5 - 10]",
+                                ifelse(dat$upper_count <= 15, "3. Upper case [11 - 15]",
+                                       "4. More than 15")))
 
 
 upper_gr <- dat %>% 
@@ -147,8 +147,8 @@ dat.gg <- circleLayoutVertices(packing, npoints=50)
 # Sentiment and engagement over time 
 dat$date_month <- substr(dat$created_at,start =1,stop=7)
 dat$name_sent  <- ifelse(dat$vader_sentiment == 0, "Neutral",
-                                    ifelse(dat$vader_sentiment == 1, "Positive",
-                                           "Negative"))
+                         ifelse(dat$vader_sentiment == 1, "Positive",
+                                "Negative"))
 
 sentiment_gr <- dat %>% 
   group_by(date_month,name_sent) %>%
@@ -159,17 +159,17 @@ sentiment_gr$Negative[is.na(sentiment_gr$Negative)] <- 0
 
 # Engagement per hashtag 
 hashtags_grouped <-dat %>%
-                    unnest_tokens(hashtag, text, "tweets", to_lower = FALSE) %>%
-                    filter(str_detect(hashtag, "^#")) %>%
-                    filter(categ_name %in% c("1. Highly engaging","4. Not Engaging"))%>%
-                    group_by(hashtag,categ_name ) %>%
-                    count(hashtag, sort = TRUE)
+  unnest_tokens(hashtag, text, "tweets", to_lower = FALSE) %>%
+  filter(str_detect(hashtag, "^#")) %>%
+  filter(categ_name %in% c("1. Highly engaging","4. Not Engaging"))%>%
+  group_by(hashtag,categ_name ) %>%
+  count(hashtag, sort = TRUE)
 
 sorted_topic <- hashtags_grouped %>%
-                group_by(categ_name) %>%
-                top_n(1, n) %>%
-                ungroup() %>%
-                arrange(categ_name, -n)
+  group_by(categ_name) %>%
+  top_n(1, n) %>%
+  ungroup() %>%
+  arrange(categ_name, -n)
 ################ FUNCTIONS  ------------------------------
 
 #sentiment
@@ -373,7 +373,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                                               ),
                                                               fluidRow(align="left",
                                                                        dateRangeInput("date_range2", strong("Select the range of dates"),start=min(dat$created_at),end=max(dat$created_at),min=min(dat$created_at),max=max(dat$created_at),format = "yyyy-mm-dd"),br(),br()
-                                                                       ),
+                                                              ),
                                                               fluidRow(align="center",
                                                                        h3("Tweets sentiment over months"),br(),br(),
                                                                        plotlyOutput("plot12"),br(),br()
@@ -389,10 +389,10 @@ ui <- fluidPage(theme = shinytheme("united"),
                                                      tabPanel("Wordcloud",br(),br(),
                                                               fluidRow(align="left",
                                                                        selectInput("sel_topic","Select Topic",topics$Topic),br(),br()
-                                                                       ),
+                                                              ),
                                                               fluidRow(align="center",
                                                                        wordcloud2Output("wordcloud1"))
-                                                              )
+                                                     )
                                          )
                                          
                                        )
@@ -420,14 +420,14 @@ ui <- fluidPage(theme = shinytheme("united"),
                                                                        plotOutput("plot16"),br(),br(),br(),br(),
                                                               ), 
                                                               fluidRow(align="center",
-                                                                        column(6,
-                                                                               h3("Most Engaging Hashtag"),br(),br(),
-                                                                               h4(strong(textOutput("text4")))
-                                                                               ),
-                                                                        column(6,
-                                                                               h3("Least Engaging Hashtag"),br(),br(),
-                                                                               h4(strong(textOutput("text5")))
-                                                                        )),br(),br(),br(),br(),
+                                                                       column(6,
+                                                                              h3("Most Engaging Hashtag"),br(),br(),
+                                                                              h4(strong(textOutput("text4")))
+                                                                       ),
+                                                                       column(6,
+                                                                              h3("Least Engaging Hashtag"),br(),br(),
+                                                                              h4(strong(textOutput("text5")))
+                                                                       )),br(),br(),br(),br(),
                                                               fluidRow(align="center", h3(strong("Engagement vs. Tweet's length")),br(),br(),
                                                                        plotlyOutput("plot17"),br(),br()
                                                               ),
@@ -442,49 +442,49 @@ ui <- fluidPage(theme = shinytheme("united"),
                                          
                                        )
                               ),
-                              tabPanel(h4(strong("Engagement Predictor")),br(),br(),
+                              tabPanel(h4(strong("Engagement Predictor")),br(),
                                        mainPanel(
                                          fluidRow(align="left",
-                                                  h4("Please input a desired Tweet"),br(),br(),
-                                                  textAreaInput("new_tweet", "", value = "Write tweet...", width = "1000px"),br(),br()
+                                                  h4("Please input a desired Tweet"),br(),
+                                                  textAreaInput("new_tweet", "", value = "Write tweet...", width = "1000px"),br()
                                          ),
                                          fluidRow(align="left",
                                                   column(6,
                                                          selectInput("sel_topic2","Select Topic",topics$Topic),br(),br()
-                                                         ),
+                                                  ),
                                                   column(6,
                                                          selectInput("tw_app","Select App",c("Sprinklr","iPhone App","Web App")),br(),br()
-                                                         )
-                                                  ),
+                                                  )
+                                         ),
                                          fluidRow(align="center",
                                                   column(3,
                                                          numericInput("ph_c","Photos Count",0,0,10)
-                                                         ),
+                                                  ),
                                                   column(3,
                                                          numericInput("vid_c","Videos Count",0,0,10)
-                                                         ),
+                                                  ),
                                                   column(3,
                                                          numericInput("gif_c","Gifs Count",0,0,10)
-                                                         ),
+                                                  ),
                                                   column(3,
                                                          numericInput("ot_med_c","Other Media Count",0,0,10),br(),br()
-                                                         )
-                                                  ),
+                                                  )
+                                         ),
                                          fluidRow(align="center",
                                                   actionButton("submit","Submit", icon("twitter")),br(),br()
-                                                  ),
+                                         ),
                                          fluidRow(align="center",
                                                   column(4,
-                                                         h4("Estimated Sentiment"),br(),br(),
+                                                         h4("Estimated Sentiment"),
                                                          h3(strong(textOutput("text1")))
-                                                         ),
+                                                  ),
                                                   column(4,
-                                                         h4("Estimated Engagement"),br(),br(),
+                                                         h4("Estimated Engagement"),
                                                          h3(strong(textOutput("text2")))
                                                   ),
                                                   column(4,
                                                          h4("Engagement Probability"),
-                                                         h3(strong(textOutput("text3"))),br(),br()
+                                                         h3(strong(textOutput("text3")))
                                                   )
                                                   
                                          )
@@ -598,26 +598,26 @@ server <- function(input, output){
   tw_sentiment<-reactive({ 
     sentiment_estimate(input$new_tweet)
   }) 
-    output$text1<-renderText({
-      req(input$submit)
-      return(isolate(tw_sentiment()$final_sent))
-      })
+  output$text1<-renderText({
+    req(input$submit)
+    return(isolate(tw_sentiment()$final_sent))
+  })
   
   tw_eng_pred<-reactive({
     
     topic_number<-topics$final_topic[topics$Topic==input$sel_topic2]
-      engagement_predictor(tweet_text=input$new_tweet,topic=topic_number,
-                           ph_c=input$ph_c,vid_c=input$vid_c,gif_c=input$gif_c,
-                           ot_med_c=input$ot_med_c,app=input$tw_app)
-    }) 
-    output$text2<-renderText({
-      req(input$submit)
-      return(isolate(tw_eng_pred()$pred_engagement))
-    })
-    output$text3<-renderText({
-      req(input$submit)
-      return(isolate(paste0(tw_eng_pred()$maxprob_nbr,"%")))
-    })
+    engagement_predictor(tweet_text=input$new_tweet,topic=topic_number,
+                         ph_c=input$ph_c,vid_c=input$vid_c,gif_c=input$gif_c,
+                         ot_med_c=input$ot_med_c,app=input$tw_app)
+  }) 
+  output$text2<-renderText({
+    req(input$submit)
+    return(isolate(tw_eng_pred()$pred_engagement))
+  })
+  output$text3<-renderText({
+    req(input$submit)
+    return(isolate(paste0(tw_eng_pred()$maxprob_nbr,"%")))
+  })
   
   output$plot10 <- renderPlotly({
     
@@ -660,7 +660,7 @@ server <- function(input, output){
     sentGraph()
   })
   
-
+  
   mediaGraph<-reactive({ 
     generateMediaCount(input$date_range2[1],input$date_range2[2])
   }) 
@@ -751,7 +751,7 @@ server <- function(input, output){
       ggtitle ("Engagement vs. number of upper case")
     upper_plot
   })
-
+  
   output$plot17 <- renderPlotly({
     length_eng_plot <-ggplot() + 
       geom_polygon(data = dat.gg, aes(x, y, group = id, fill=id), colour = "black", alpha = 0.6) +
@@ -773,14 +773,14 @@ server <- function(input, output){
     
     fig
   }) 
-    output$text4<-renderText({
-      return(sorted_topic$hashtag[1])
-    })
-    output$text5<-renderText({
-      return(sorted_topic$hashtag[2])
-    })
+  output$text4<-renderText({
+    return(sorted_topic$hashtag[1])
+  })
+  output$text5<-renderText({
+    return(sorted_topic$hashtag[2])
+  })
   
-
+  
   
 } 
 
