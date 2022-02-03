@@ -18,7 +18,7 @@ library(udpipe)
 
 ################ PREPARATION ------------------------------
 
-setwd('C:/Users/mserrano/OneDrive - IESEG/MSc/2ND SEMESTER/SOCIAL MEDIA ANALYTICS/Group Project/App')
+setwd('C:/Users/warfaoui/OneDrive - IESEG/Desktop/Social Media Analytics/Group Project/Social-Media-Analytics-main/App')
 
 dat<-read.csv("final_all_cols.csv")
 
@@ -264,12 +264,15 @@ ui <- fluidPage(theme = shinytheme("united"),
                                        mainPanel(
                                          tabsetPanel(type="tabs",
                                                      tabPanel('Descriptive',
-                                                              fluidRow(align="left", h4(strong("Tweets' Timeline")),
+                                                              fluidRow(h4(strong("Tweets' Timeline")),align="center"
+                                                              ),
+                                                              
+                                                              fluidRow(align="left",
                                                                        dateRangeInput("date_range", strong("Select the range of dates"),start=min(dat$created_at),end=max(dat$created_at),min=min(dat$created_at),max=max(dat$created_at),format = "yyyy-mm-dd")
                                                               ),
                                                               
                                                               fluidRow(align="center", 
-                                                                       plotOutput("plot1", click = "plot_click"),
+                                                                       plotOutput("plot1", click = "plot_click"),br(),br(),
                                                                        verbatimTextOutput("info")
                                                               ),
                                                               
@@ -297,26 +300,26 @@ ui <- fluidPage(theme = shinytheme("united"),
                                                      
                                                      tabPanel("Descriptive 2",
                                                               fluidRow(align="center",
-                                                                       h4("Length of Tweets Histogram"),
+                                                                       h4(strong("Length of Tweets Histogram")),
                                                                        plotlyOutput("plot5")
                                                               ),
                                                               fluidRow(align="center",
-                                                                       h4("Length of Tweets by Date"),
+                                                                       h4(strong("Length of Tweets by Date")),
                                                                        plotlyOutput("plot6")
                                                               ),
                                                               fluidRow(align="center",
-                                                                       h4("Sentiment distribution in tweets"),
+                                                                       h4(strong("Sentiment distribution in tweets")),
                                                                        plotlyOutput("plot8")
                                                               ),
                                                               fluidRow(align="center",
-                                                                       h4("Weekdays/weekends share of tweets"),
+                                                                       h4(strong("Weekdays/weekends share of tweets")),
                                                                        plotlyOutput("plot9")
                                                               ),
                                                               fluidRow(align="left",
                                                                        dateRangeInput("date_range2", strong("Select the range of dates"),start=min(dat$created_at),end=max(dat$created_at),min=min(dat$created_at),max=max(dat$created_at),format = "yyyy-mm-dd")
                                                                        ),
                                                               fluidRow(align="center",
-                                                                       h4("Tweets sentiment over months"),
+                                                                       h4(strong("Tweets sentiment over months")),
                                                                        plotlyOutput("plot12")
                                                               ),
                                                               fluidRow(align="left",
@@ -396,16 +399,16 @@ server <- function(input, output){
   # #plots
   
   output$plot1 <- renderPlot({
-    dat[dat$created_at>= input$date_range[1]& dat$created_at<= input$date_range[2],] %>% ts_plot("months") +
+    dat[dat$created_at>= input$date_range[1]& dat$created_at<= input$date_range[2],] %>% ts_plot("months", color="#E11388",line.mode =  "lines+markers") +
       labs(x = NULL, y = NULL,
-           title = "Frequency of Dunkin Donuts official account tweets") + 
+           title = "Frequency of Dunkin Donuts official account tweets",) + 
       theme_minimal()
   })
   
   output$info <- renderText({
     y_str <- function(e) {
       if(is.null(e)) return("NULL\n")
-      paste0("Number of tweets=", round(e$y, 0), "\n Date=", format(as.POSIXct(e$x,origin="1970-01-01"),"%Y-%m-%d"))
+      paste0("Number of tweets=", round(e$y, 0), "\n Date=", format(as.POSIXct(e$x,origin="1970-01-01"),"%Y-%m"))
     }
     paste0(y_str(input$plot_click))
   })
@@ -416,7 +419,7 @@ server <- function(input, output){
       filter(str_detect(hashtag, "^#")) %>%
       count(hashtag, sort = TRUE) %>%
       top_n(10)%>% mutate(name = fct_reorder(hashtag, n)) %>% 
-      ggplot( aes(x=name, y=n)) + geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) + 
+      ggplot( aes(x=name, y=n)) + geom_bar(stat="identity", fill="#F5821F", alpha=1, width=0.7) + 
       coord_flip() + xlab("") + theme_bw()
   })
   
