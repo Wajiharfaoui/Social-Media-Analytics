@@ -1,4 +1,4 @@
-<style> body {text-align: justify} </style>
+# Predictions of online engagement for Dunkin Donuts tweets
 
 <!-- Justify text. -->
 
@@ -97,7 +97,7 @@ the words.
     graph corresponding to the metrics curves is shown below.
     <div class="figure">
 
-    <img src="topics_num.png" alt="metrics LDA" width="100%" />
+    <img src="./RMarkdown/topics_num.png" alt="metrics LDA" width="100%" />
     <p class="caption">
     metrics LDA
     </p>
@@ -110,7 +110,7 @@ the words.
 
 <div class="figure">
 
-<img src="topic_words.png" alt="Topics description" width="100%" />
+<img src="./RMarkdown/topic_words.png" alt="Topics description" width="100%" />
 <p class="caption">
 Topics description
 </p>
@@ -148,7 +148,7 @@ below.
 
 <div class="figure">
 
-<img src="ROC_Curves.png" alt="ROC Curves" width="40%" />
+<img src="./RMarkdown/ROC_Curves.png" alt="ROC Curves" width="40%" />
 <p class="caption">
 ROC Curves
 </p>
@@ -165,7 +165,7 @@ ROC Curves
     2020, calling customers to visit DD’s locals and announcing
     different offers on that occasion (`60 tweets`).
 
-<img src="freq.png" width="80%" />
+<img src="./RMarkdown/freq.png" width="80%" />
 
 -   The majority of Dunkin Donuts tweets were publishing during the
     afternoon `64%`, followed by tweets posted during the evening `28%`,
@@ -181,7 +181,7 @@ ROC Curves
     characters being the one with the highest number of tweets
     `114 tweets`.
 
-<img src="length.png" width="80%" />
+<img src="./RMarkdown/length.png" width="80%" />
 
 -   Positive tweets are dominating the coverage with `59%` of overall
     tweets.  
@@ -191,7 +191,7 @@ ROC Curves
     save lives during the pandemic.  
     <div class="figure">
 
-    <img src="sentiment.png" alt="ROC Curves" width="80%" />
+    <img src="./RMarkdown/sentiment.png" alt="ROC Curves" width="80%" />
     <p class="caption">
     ROC Curves
     </p>
@@ -201,7 +201,7 @@ ROC Curves
     attachements**, with **photos** being the most frequent media type
     to include with tweets `76%`.
 
-<img src="media.png" width="90%" />
+<img src="./RMarkdown/media.png" width="90%" />
 
 ### Engagement
 
@@ -212,7 +212,7 @@ ROC Curves
     during the month of **Dec 2020** whereas the peak for **Highly
     Engaging** tweets was during **September** of the same year.
 
-<img src="engag_categOT.PNG" width="80%" />
+<img src="./RMarkdown/engag_categOT.PNG" width="80%" />
 
 -   As it is displayed in the **Engagement vs Day Over Time** graph,
     most of the tweets published by DD are done during weekdays,
@@ -220,21 +220,21 @@ ROC Curves
     engagement of the tweet. Also, the month of **September** is the
     highest engaging month, due to the **#NationalDunkinDay**.
 
-<img src="engagementOT.PNG" width="80%" />
+<img src="./RMarkdown/engagementOT.PNG" width="80%" />
 
 -   The **Engagement vs. Topics** chart displays the distribuion of each
     topic vs engagement. Clearly, we can see that the most engaging
     topics are: **Special Celebrations ** and **Others**, followed by
     **Order by App/ Drive Thru**.
 
-<img src="topics_engagement.PNG" width="80%" />
+<img src="./RMarkdown/topics_engagement.PNG" width="80%" />
 
 -   In the **Engagement vs Media** graph, we analyze the impact of media
     on tweet’s engagement. Counterintuitively, highest engaging tweets
     do not contain media. However, most of the tweets belonging to the
     subsequent categories contain media.
 
-<img src="engagementMedia.PNG" width="80%" />
+<img src="./RMarkdown/engagementMedia.PNG" width="80%" />
 
 -   In the following barchart we can see the distribution of uppercase
     vs engagement categories. It is worth to mention that most highly
@@ -253,25 +253,25 @@ ROC Curves
     senes, and that’s the reason of the peak. Therefore, we could
     conclude that sarcastic tweets have a high engagement.
 
-<img src="eng_sent_OT.png" width="80%" />
+<img src="./RMarkdown/eng_sent_OT.png" width="80%" />
 
 -   For the Engagement category over time we could not see a seasonality
     of the categories, as shown below in the graph.
 
-<img src="engag_categOT.PNG" width="80%" />
+<img src="./RMarkdown/engag_categOT.PNG" width="80%" />
 
 -   In the bubble graph related to the tweet length we can see that most
     of the highly engaging tweets are of short length, whereas the low
     engaging tweets have a long length
 
-<img src="tweet_length.png" width="80%" />
+<img src="./RMarkdown/tweet_length.png" width="80%" />
 
 -   Looking at the time of the post vs engagement categories we can
     perceive that even if Late Night tweets are not common in the
     account, they are most frequently within the highly engaging
     category as displayed in the following graph
 
-<img src="hour_of_day.png" width="60%" />
+<img src="./RMarkdown/hour_of_day.png" width="60%" />
 
 ## Recommendations
 
